@@ -3,7 +3,7 @@ import React from 'react'
 import { BsArrowLeftShort } from 'react-icons/bs'
 
 const styles = {
-  wrapper: `border-[#38444d] border-b`,
+  wrapper: `border-[#282B33] border-b`,
   header: `py-1 px-3 my-2 flex items-center`,
   primary: `bg-transparent outline-none font-bold`,
   secondary: `text-[#8899a6] text-xs`,

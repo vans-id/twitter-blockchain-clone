@@ -6,7 +6,7 @@ import Widgets from '../components/Shared/Widgets/Widgets'
 const styles = {
   wrapper: `flex justify-center h-screen w-screen select-none bg-[#1A1D25] text-white`,
   content: `max-w-[1400px] w-full flex justify-between`,
-  mainContent: `flex-[2] border-r border-l border-[#38444d] overflow-y-scroll`,
+  mainContent: `flex-[2] border-r border-l border-[#282B33] overflow-y-scroll`,
 }
 
 /**
