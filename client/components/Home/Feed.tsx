@@ -1,5 +1,6 @@
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import { BsStars } from 'react-icons/bs'
+import { TwitterContext } from '../../context/TwitterContext'
 import Post from '../Shared/Post'
 import Tweetbox from './Tweetbox'
 
@@ -9,68 +10,46 @@ const styles = {
   headerTitle: `text-xl font-bold`,
 }
 
-const TWEETS = [
-  {
-    displayName: 'Evan',
-    username: '0xE43411b1a61259e5104c9808a5c63b8FcC973B31',
-    avatar:
-      'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631',
-    text: 'gm',
-    isProfileImageNft: true,
-    timestamp: '2022-04-01',
-  },
-  {
-    displayName: 'Dewa',
-    username: '0xE43411b1a61259e5104c9808a5c63b8FcC973B31',
-    avatar:
-      'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631',
-    text: 'gn',
-    isProfileImageNft: true,
-    timestamp: '2020-06-01',
-  },
-  {
-    displayName: 'Richard',
-    username: '0xE43411b1a61259e5104c9808a5c63b8FcC973B31',
-    avatar:
-      'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631',
-    text: 'gm',
-    isProfileImageNft: false,
-    timestamp: '2020-06-01',
-  },
-  {
-    displayName: 'Evan',
-    username: '0xE43411b1a61259e5104c9808a5c63b8FcC973B31',
-    avatar:
-      'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631',
-    text: 'gm',
-    isProfileImageNft: true,
-    timestamp: '2022-04-01',
-  },
-  {
-    displayName: 'Dewa',
-    username: '0xE43411b1a61259e5104c9808a5c63b8FcC973B31',
-    avatar:
-      'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631',
-    text: 'gn',
-    isProfileImageNft: true,
-    timestamp: '2020-06-01',
-  },
-  {
-    displayName: 'Richard',
-    username: '0xE43411b1a61259e5104c9808a5c63b8FcC973B31',
-    avatar:
-      'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631',
-    text: 'gm',
-    isProfileImageNft: false,
-    timestamp: '2020-06-01',
-  },
-]
+interface Tweet {
+  author: TweetAuthor
+  tweet: string
+  timestamp: string
+}
+
+interface TweetAuthor {
+  name: string
+  walletAddress: string
+  profileImage: string
+  isProfileImageNft: boolean
+}
 
 /**
  * Component to display where the user's feed
  * @component
  */
 const Feed = () => {
+  const { tweets } = useContext(TwitterContext)
+
+  /**
+   * Gets the wallet addres if author's name is 'Unnamed'
+   */
+  const getDisplayName = (tweet: Tweet) =>
+    tweet.author.name === 'Unnamed'
+      ? `${tweet.author.walletAddress.slice(
+          0,
+          4
+        )}...${tweet.author.walletAddress.slice(41)}`
+      : tweet.author.name
+
+  /**
+   * Gets the trimmed wallet addres
+   */
+  const getUsername = (tweet: Tweet) =>
+    `${tweet.author.walletAddress.slice(
+      0,
+      4
+    )}...${tweet.author.walletAddress.slice(41)}`
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -78,16 +57,14 @@ const Feed = () => {
         <BsStars />
       </div>
       <Tweetbox />
-      {TWEETS.map((tweet, i) => (
+      {(tweets as Tweet[]).map((tweet, i) => (
         <Post
           key={i}
-          displayName={tweet.displayName}
-          username={`${tweet.username.slice(0, 4)}...${tweet.username.slice(
-            -4
-          )}`}
-          avatar={tweet.avatar}
-          text={tweet.text}
-          isProfileImageNft={tweet.isProfileImageNft}
+          displayName={getDisplayName(tweet)}
+          username={getUsername(tweet)}
+          avatar={tweet.author.profileImage}
+          text={tweet.tweet}
+          isProfileImageNft={tweet.author.isProfileImageNft}
           timestamp={tweet.timestamp}
         />
       ))}

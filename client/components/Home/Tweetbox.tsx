@@ -3,6 +3,8 @@ import { BsCardImage, BsEmojiSmile } from 'react-icons/bs'
 import { RiFileGifLine, RiBarChartHorizontalFill } from 'react-icons/ri'
 import { IoMdCalendar } from 'react-icons/io'
 import { MdOutlineLocationOn } from 'react-icons/md'
+import { TwitterContext } from '../../context/TwitterContext'
+import { client } from '../../lib/client'
 
 const styles = {
   wrapper: `px-4 flex flex-row border-b border-[#282B33] py-4`,
@@ -23,23 +25,61 @@ const styles = {
  * @component
  */
 const Tweetbox = () => {
+  // TODO: ADD IS LOADING
   const [tweetMessage, setTweetMessage] = useState('')
+  const { currentAccount, currentUser } = useContext(TwitterContext)
 
+  /**
+   * Function that triggered on user post
+   * @param {MouseEvent<HTMLButtonElement, globalThis.MouseEvent>} e the event object
+   */
   const postTweet = async (
     e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
   ) => {
     e.preventDefault()
+
+    if (!tweetMessage) return
+
+    const tweetId = `${currentAccount}_${Date.now()}`
+    const tweetDoc = {
+      _type: 'tweets',
+      _id: tweetId,
+      tweet: tweetMessage,
+      timestamp: new Date(Date.now()).toISOString(),
+      author: {
+        _key: tweetId,
+        _type: 'reference',
+        _ref: currentAccount,
+      },
+    }
+
+    await client.createIfNotExists(tweetDoc)
+    await client
+      .patch(currentAccount)
+      .setIfMissing({ tweets: [] })
+      .insert('after', 'tweets[-1]', [
+        {
+          _key: tweetId,
+          _ref: tweetId,
+          _type: 'reference',
+        },
+      ])
+      .commit()
+
+    setTweetMessage('')
   }
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.tweetBoxLeft}>
         <img
-          src={
-            'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631'
-          }
+          src={currentUser.profileImage}
           alt="profile"
-          className={styles.profileImage}
+          className={
+            currentUser.isProfileImageNft
+              ? `${styles.profileImage} smallHex`
+              : styles.profileImage
+          }
         />
       </div>
       <div className={styles.tweetBoxRight}>

@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useContext } from 'react'
 import { BsArrowLeftShort } from 'react-icons/bs'
+import { TwitterContext } from '../../context/TwitterContext'
 
 const styles = {
   wrapper: `border-[#282B33] border-b`,
@@ -29,7 +30,7 @@ interface UserData {
   profileImage: string
   coverImage: string
   walletAddress: string
-  tweets: Array<Tweets>
+  tweets: Tweets[]
   isProfileImageNft: Boolean | undefined
 }
 
@@ -38,10 +39,12 @@ interface UserData {
  * @component
  */
 const ProfileHeader = () => {
+  const {
+    currentAccount,
+    currentUser,
+  }: { currentAccount: String; currentUser: UserData } =
+    useContext(TwitterContext)
   const router = useRouter()
-
-  const isProfileImageNft = true
-  const currentAccount = '0xE43411b1a61259e5104c9808a5c63b8FcC973B31'
 
   return (
     <div className={styles.wrapper}>
@@ -51,35 +54,33 @@ const ProfileHeader = () => {
         </div>
 
         <div className={styles.details}>
-          <div className={styles.primary}>David J. Evan</div>
-          <div className={styles.secondary}>4 Tweets</div>
+          <div className={styles.primary}>{currentUser.name}</div>
+          <div className={styles.secondary}>
+            {currentUser.tweets?.length} Tweets
+          </div>
         </div>
       </div>
 
       <div className={styles.coverPhotoContainer}>
         <img
-          src="https://images.prismic.io/yellowcard-website/30bdb31a-730f-4e5e-9fde-997e208eedca_crypto+2020+retrospect.jpeg?auto=compress,format"
+          src={currentUser.coverImage}
           alt="cover"
           className={styles.coverPhoto}
         />
       </div>
       <div className={styles.profileImageContainer}>
-        <div
-          className={isProfileImageNft ? 'hex' : styles.profileImageContainer}
-        >
+        <div className={true ? 'hex' : styles.profileImageContainer}>
           <img
-            src="https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631"
+            src={currentUser.profileImage}
             alt="profile"
-            className={
-              isProfileImageNft ? styles.profileImageNft : styles.profileImage
-            }
+            className={true ? styles.profileImageNft : styles.profileImage}
           />
         </div>
       </div>
 
       <div className={styles.details}>
         <div>
-          <div className={styles.primary}>David J. Evan</div>
+          <div className={styles.primary}>{currentUser.name}</div>
         </div>
         <div className={styles.secondary}>
           {currentAccount &&

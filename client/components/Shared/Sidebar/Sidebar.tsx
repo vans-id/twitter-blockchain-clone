@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import Link from 'next/link'
+import { useContext, useState } from 'react'
+import Modal from 'react-modal'
+import { useRouter } from 'next/router'
 
 import { RiHome7Line, RiHome7Fill, RiFileList2Fill } from 'react-icons/ri'
 import { BiHash } from 'react-icons/bi'
@@ -15,10 +16,13 @@ import {
   BsPersonFill,
 } from 'react-icons/bs'
 
+import { TwitterContext } from '../../../context/TwitterContext'
 import SidebarOption from './SidebarOption'
+import ProfileImageMinter from '../../mintingModal/ProfileImageMinter'
+import { customStyles } from '../../../lib/constants'
 
 const styles = {
-  wrapper: `flex-[0.7] px-8 flex flex-col bg-[#13151B]`,
+  wrapper: `flex-[0.7] px-8 flex flex-col bg-[#13151B] overflow-y-scroll hide-scrollbar`,
   twitterIconContainer: `text-3xl m-4`,
   tweetButton: `bg-[#1EA2F3] hover:bg-[#1882c2] flex items-center justify-center font-bold rounded-3xl h-[50px] mt-[20px] cursor-pointer`,
   navContainer: `flex-1`,
@@ -43,9 +47,12 @@ interface SidebarProps {
  */
 const Sidebar = ({ initialSelectedIcon = 'Home' }: SidebarProps) => {
   const [selected, setSelected] = useState(initialSelectedIcon)
+  const { currentAccount, currentUser } = useContext(TwitterContext)
+  const router = useRouter()
 
   return (
     <div className={styles.wrapper}>
+      {/* Sidebar Items */}
       <div className={styles.twitterIconContainer}>
         <VscTwitter />
       </div>
@@ -61,29 +68,51 @@ const Sidebar = ({ initialSelectedIcon = 'Home' }: SidebarProps) => {
           />
         ))}
         <SidebarOption Icon={CgMoreO} text="More" />
-        <div className={styles.tweetButton}>Mint</div>
+
+        {/* Mint Button */}
+        <div
+          className={styles.tweetButton}
+          onClick={() => {
+            router.push(`${router.pathname}/?mint=${currentAccount}`)
+          }}
+        >
+          Mint
+        </div>
       </div>
 
+      {/* Profile Button */}
       <div className={styles.profileButton}>
         <div className={styles.profileLeft}>
           <img
-            src={
-              'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631'
-            }
+            src={currentUser.profileImage}
             alt="profile"
-            className={styles.profileImage}
+            className={
+              currentUser.isProfileImageNft
+                ? `${styles.profileImage} smallHex`
+                : styles.profileImage
+            }
           />
         </div>
         <div className={styles.profileRight}>
           <div className={styles.details}>
-            <div className={styles.name}>Test Name</div>
-            <div className={styles.handle}>@0x12345...6789A</div>
+            <div className={styles.name}>{currentUser.name}</div>
+            <div className={styles.handle}>
+              @{currentAccount.slice(0, 6)}...{currentAccount.slice(39)}
+            </div>
           </div>
           <div className={styles.moreContainer}>
             <FiMoreHorizontal />
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={Boolean(router.query.mint)}
+        onRequestClose={() => router.back()}
+        style={customStyles}
+      >
+        <ProfileImageMinter />
+      </Modal>
     </div>
   )
 }
